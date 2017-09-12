@@ -1,3 +1,22 @@
+# Driving simulator Proportional–Integral–Derivative (PID) controller
+
+This control loop feedback mechanism in this project continuously calculates a cross track error (CTE), the distance between of the car from the middle of the road, and applies a correction using proportional, integral, and differential terms. Tunning these three hyper-parameters allows for successfully optimized steering and for a vehicle to stay on a simulated track.
+
+## Proportional
+
+The proportional term accounts for present values of the CTE. A large positive CTE will result in a control output that is proportionally large and positive. With the proportional parameter set high a vehicle may respond to sharp corners but have a tendency to overshoot the middle of the road and oscillate across the middle of the road sharply. The vehicle will cross the middle of road as it will receive a low CTE and will provide a low control response.
+
+## Integral
+
+The integral term accounts for past values of the CTE and integrates them over time in the controller. In that way it accounts for bias such as wind or a misalignment in steering or when the proportional term is not providing a sufficient control response. The integral term will reduce under steering over time.
+
+## Differential
+
+The differential term accounts for future values of the CTE and counteracts the tendency to overshoot the middle of the road. An appropriate weighted differential component will dampen a cars steering and prevent it from quite reaching the center of the road while too large a value will prevent the car from moving much at all.
+
+## Tuning
+
+https://en.wikipedia.org/wiki/PID_controller#Manual_tuning
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
 
