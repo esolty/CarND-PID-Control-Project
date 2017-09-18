@@ -44,6 +44,7 @@ public:
   int current_iter_num_of_restarts;
   bool TwiddleEnable;
   double current_time;
+  double last_speed_change_time;
   double previous_time;
   double sum_delta;
 
@@ -87,6 +88,11 @@ public:
   * Stores the cumulative error
   */
   void Total_CTE_per_Twiddle_Iteration(double cte) ;
+
+  /*
+  * Record cycle results
+  */
+  void RecordCycle(double cte) ;
 
   /*
   * Restarts the simulator

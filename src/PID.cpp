@@ -1,6 +1,6 @@
 #include "PID.h"
 #include "math.h"
-
+#include <fstream>
 #include <uWS/uWS.h>
 #include <iostream>
 #include "json.hpp"
@@ -37,23 +37,24 @@ void PID::Init(double Kp, double Ki, double Kd) {
   num_iterations = 0;
   all_iterations = 0;
   stored_error = 0;
-  min_iterations = 100;
+  min_iterations = 10;
   current_iter_num_of_restarts = 0;
 
   // twiddle values
   startloop = true;
-  dKp = 0.1 * Kp; 
+  dKp = 0.2 * Kp; 
   dKi = 0;//0.1 * Ki; 
-  dKd = 0.1 * Kd;
-  Kp_best = Kp;
-  Ki_best = Ki;
-  Kd_best = Kd;
+  dKd = 0.2 * Kd;
+  Kp_best = 0;
+  Ki_best = 0;
+  Kd_best = 0;
   controller_term = Kp;
   delta = dKp;
   sum_delta = 0;
   best_err = 1000000;
   best_err_num_of_restarts = 1000000;
   TwiddleEnable = true;
+  last_speed_change_time = 5000;
 }
 
 void PID::UpdateError(double cte, double dt) {
@@ -106,14 +107,17 @@ double PID::speed_control(double speed, double maxspeed) {
 */
 
   // maintain speed
-  if(speed >= maxspeed+0.4) {
+  if(speed >= maxspeed+0.5) {
     throttle_value = 0;
   }
-  else if(speed >= maxspeed-0.4 && speed < maxspeed) {
-    throttle_value = 0.2;
+  else if(speed >= maxspeed-0.5 && speed < maxspeed) {
+    throttle_value = 0.095;
   }
-  else if(speed <= maxspeed+0.4 && speed > maxspeed) {
-    throttle_value = 0.1;
+  else if(speed >= maxspeed-1.25 && speed < maxspeed-0.5) {
+    throttle_value = 0.18;
+  }
+  else if(speed <= maxspeed+0.5 && speed > maxspeed) {
+    throttle_value = 0.085;
   }
   return throttle_value;
 }
@@ -121,7 +125,7 @@ double PID::speed_control(double speed, double maxspeed) {
 void PID::Twiddle() {
 
   all_iterations += num_iterations;
-  double tolerance = 0.01;
+  double tolerance = 0.001;
   double err = stored_error / (max_iterations - min_iterations);
   sum_delta = dKp+dKi+dKd;
 
@@ -228,4 +232,27 @@ void PID::Twiddle() {
   if (D_twiddle == true){Kd = controller_term; dKd = delta;}
 }
  
-
+void PID::RecordCycle(double maxspeed) {
+  // headers mph; Tot_iters; CE; CE_Rests; BE; BE_rests; Kp_best; Ki_best; Kd_best; Kp; Ki; Kd; dKp; dKi; dKd; p_error; i_error; d_error;
+  std::ofstream myfile;
+  myfile.open("storage.txt", std::ios_base::app);
+  myfile << maxspeed << "; ";
+  myfile << all_iterations << "; ";
+  myfile << stored_error/fabs(num_iterations-(min_iterations-2)) << "; ";
+  myfile << current_iter_num_of_restarts << "; ";
+  myfile << best_err << "; ";
+  myfile << best_err_num_of_restarts << "; ";
+  myfile << Kp_best << "; ";
+  myfile << Ki_best << "; ";
+  myfile << Kd_best << "; ";
+  myfile << Kp << "; ";
+  myfile << Ki << "; ";
+  myfile << Kd << "; ";
+  myfile << dKp << "; ";
+  myfile << dKi << "; ";
+  myfile << dKd << "; ";
+  myfile << p_error << "; ";
+  myfile << i_error << "; ";
+  myfile << d_error << "\n";
+  myfile.close();
+}

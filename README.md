@@ -16,6 +16,13 @@ The differential term accounts for future values of the CTE and counteracts the 
 
 ## Tuning
 
+I first attempted manual tunning at low speeds. At 10 mph I set the P to a 0.1 where it could stay on the track until almost the first corner and then I increased the D until close to 0.1 where it could stay on the track for an entire loop. I left the I = 0 as I didn't anticipate any error from steering or other factors to be a consideration in the simulator.
+
+After this I used the twiddle algorithm to find optimal variables at different speeds. Anytime the CTE was above 2.5 I reset the vehicle back to the start and added that to the total restarts. At low speeds the twiddle alogrithm worked sufficiently. 
+
+
+[Video] (https://youtu.be/xfZ_cqbaJ1c)
+
 https://en.wikipedia.org/wiki/PID_controller#Manual_tuning
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
